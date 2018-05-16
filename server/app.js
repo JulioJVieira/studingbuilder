@@ -1,16 +1,12 @@
-import dotenv from 'dotenv';
-
 import express from 'express';
-import next from 'next';
-
-import mongoose from 'mongoose';
-
 import session from 'express-session';
 import mongoSessionStore from 'connect-mongo';
+import next from 'next';
+import mongoose from 'mongoose';
 
-import User from './models/User';
+import auth from './google';
 
-dotenv.config();
+require('dotenv').config();
 
 const dev = process.env.NODE_ENV !== 'production';
 const MONGO_URL = process.env.MONGO_URL_TEST;
@@ -29,7 +25,6 @@ app.prepare().then(() => {
 
   // confuring MongoDB session store
   const MongoStore = mongoSessionStore(session);
-
   const sess = {
     name: 'builderbook.sid',
     secret: 'HD2w.)q*VqRT4/#NK2M/,E^B)}FED5fWU!dKe[wk',
@@ -47,12 +42,7 @@ app.prepare().then(() => {
 
   server.use(session(sess));
 
-  // this is testing code, remove later
-  server.get('/', async (req, res) => {
-    req.session.foo = 'bar';
-    const user = await User.findOne({ slug: 'team-builder-book' });
-    app.render(req, res, '/', { user });
-  });
+  auth({ server, ROOT_URL });
 
   server.get('*', (req, res) => handle(req, res));
 
