@@ -2,6 +2,9 @@ import _ from 'lodash';
 import mongoose from 'mongoose';
 
 import generateSlug from '../utils/slugify';
+import sendEmail from '../aws';
+import getEmailTemplate from './EmailTemplate';
+import logger from '../logs';
 
 const { Schema } = mongoose;
 
@@ -84,7 +87,8 @@ class UserClass {
       if (_.isEmpty(modifier)) {
         return user;
       }
-      await this.updateOne({ googleId }, { $set: { googleToken: modifier } });
+
+      await this.updateOne({ googleId }, { $set: modifier });
 
       return user;
     }
@@ -102,6 +106,22 @@ class UserClass {
       slug,
       isAdmin: userCount === 0,
     });
+
+    const template = await getEmailTemplate('welcome', {
+      userName: displayName,
+    });
+    try {
+      await sendEmail({
+        from: `Julio from Builder Book <${
+          process.env.EMAIL_SUPPORT_FROM_ADDRESS
+        }>`,
+        to: [email],
+        subject: template.subject,
+        body: template.message,
+      });
+    } catch (err) {
+      logger.error('Email sending error:', err);
+    }
 
     return _.pick(newUser, UserClass.publicFields());
   }

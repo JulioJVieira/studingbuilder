@@ -1,32 +1,40 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import Head from 'next/head';
+/*eslint-disable */
+import React from "react";
+import PropTypes from "prop-types";
+import Head from "next/head";
 
-import withAuth from '../lib/withAuth';
-import withLayout from '../lib/withLayout';
+import Button from "material-ui/Button";
+
+import withAuth from "../lib/withAuth";
+import withLayout from "../lib/withLayout";
+import notify from "../lib/notifier";
 
 class Index extends React.Component {
   static propTypes = {
     user: PropTypes.shape({
       displayName: PropTypes.string,
-      email: PropTypes.string.isRequired,
-    }),
+      email: PropTypes.string.isRequired
+    })
   };
 
   static defaultProps = {
-    user: null,
+    user: null
   };
 
   render() {
     const { user } = this.props;
     return (
-      <div style={{ padding: '10px 45px' }}>
+      <div style={{ padding: "10px 45px" }}>
         <Head>
           <title>Dashboard</title>
           <meta name="description" content="List of purchased books." />
         </Head>
-        <p> Dashboard </p>
+        <p>List of purchased books</p>
         <p>Email: {user.email}</p>
+
+        <Button variant="raised" onClick={() => notify("success message")}>
+          Click me to test notify()
+        </Button>
       </div>
     );
   }
